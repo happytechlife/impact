@@ -1,7 +1,7 @@
 {
-  "name": "happytech-impact",
+  "name": "happytech-trends",
   "version": "0.0.1",
-  "description": "find out happytech impact",
+  "description": "find out happytech trends and past",
   "main": "dist/index.js",
   "license": "MIT",
   "author": "pouya mohtacham",

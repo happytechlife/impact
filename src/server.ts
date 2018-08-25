@@ -1,36 +1,22 @@
 import * as express from 'express';
-import { SmsParser } from './SmsParser';
 import * as bodyParser from 'body-parser';
 import fetch from 'node-fetch';
-import configuration from './configuration';
-import { ServerHost } from './configuration';
 import * as path from 'path';
 
 
 
 
-const smsParser = new SmsParser();
 
-const battery = (req: express.Request, res: express.Response) => {
-    const indexPath = path.join(__dirname, '../src/public/battery/battery.html');
-    console.log('indexPath', __dirname, indexPath);
-    res.sendFile(indexPath);
-};
+// const page1 = (req: express.Request, res: express.Response) => {
+//     const indexPath = path.join(__dirname, '../src/public/page1.html');
+//     console.log('indexPath', __dirname, indexPath);
+//     res.sendFile(indexPath);
+// };
 
 const home = (req: express.Request, res: express.Response) => {
-    res.send(smsParser.instructionList())
+    res.send('hi')
 };
 
-const sms = async (req: express.Request, res: express.Response) => {
-    console.log('sms params', req.url, req.query);
-    console.log('message', req.query.m);
-    if (req.query.m) {
-        const instruction = smsParser.parse(req.query.m);
-        const instructionResult = await instruction.action();
-        sendSms(req.query.f, instructionResult);
-        res.send(`sms ${req.query.m} : ${instructionResult}`);
-    }
-}
 
 const PORT = 80;
 export const setup = () => {
@@ -40,27 +26,18 @@ export const setup = () => {
     app.use(express.static(publicPath));
     app.use(bodyParser.urlencoded({ extended: false }));
 
-    app.get('/battery', battery);
+    // app.get('page1', page1);
     app.get('/', home);
-    app.get('*', sms);
+
 
     app.listen(PORT, () => {
         console.log(`Poum app listening on port ${PORT}!`)
     });
 }
 
-export function getUrlFromServerHost(serverHost: ServerHost) {
-    return `${serverHost.protocol}://${serverHost.host}:${serverHost.port}`;
-}
-
-export const sendSms = async (to: string, msg: string) => {
-    const phone = to.replace('+336', '06');
-    const encodedMessage = encodeURIComponent(msg);
-    const uri = `${getUrlFromServerHost(configuration.smsServer)}/SendSMS/user=&password=123456&phoneNumber=${phone}&msg=${encodedMessage}`;
-    console.log('send sms', uri);
-    const res = await getTextFromUri(uri);
-    console.log('send sms result', res);
-}
+// export function getUrlFromServerHost(serverHost: ServerHost) {
+//     return `${serverHost.protocol}://${serverHost.host}:${serverHost.port}`;
+// }
 
 export async function getJson<T>(uri: string): Promise<T> {
     const response = await fetch(uri);
