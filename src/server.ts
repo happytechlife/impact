@@ -47,13 +47,29 @@ export async function getJson<T>(uri: string): Promise<T> {
 
 
 export async function getTextFromUri(uri: string): Promise<string> {
-    const response = await fetch(uri).catch(err => console.error(err));
+    const response = await fetch(uri, {
+        headers: {
+            'Content-Type': 'text/html; charset=UTF-8'
+        }
+    }).catch(err => console.error(err));
     if (response) {
+        // console.log(response.body);
         const text = await response.text();
         return text;
     }
     return '<KO>';
 }
+
+// export async function getTextFromUri(uri: string): Promise<string> {
+//     const response = await fetch(uri).catch(err => console.error(err));
+//     if (response) {
+//         const text = await response.text();
+//         return text;
+//     }
+//     return '<KO>';
+// }
+
+
 
 
 export async function postToUrl(uri: string, body: string): Promise<string> {
