@@ -1,50 +1,54 @@
+import { HappyBot } from "./HappyBot";
+import { loadFromFile } from "./storage/files";
+import { IGoogleLink } from "./models";
 
-import { getAllLinks, CrawlerPromise } from './scrap/scrap';
-import { getStartups } from './scrap/loadStartups';
-import { IStartupInput, IGoogleLink } from './models';
-import { saveInFile } from './storage/files';
+// import { saveInFile } from './storage/files';
 
 
 export function mergeArrayOfArray<T>(src: any[][]) {
     return [].concat.apply([], src) as T[];
 }
 
-export const getStartupLink = async (c: CrawlerPromise, startup: IStartupInput) => {
-    const listP = startup.searchTerms.map(async searchTerm => {
-        const terms = ['happytech', searchTerm];
-        return getAllLinks(c, terms, 10);
-    });
-    const links = await Promise.all(listP);
-    const allLinks = mergeArrayOfArray<IGoogleLink>(links);
-    return allLinks;
+
+type LinkMap = { [key: string]: IGoogleLink[] }
+
+export function display() {
+    const startups = loadFromFile<IGoogleLink[]>('google');
+    if (startups) {
+        // let links = mergeArrayOfArray<any>(startups);
+        const links = startups;
+        // links = mergeArrayOfArray<any>(links);
+        // console.log(links.length);
+        const init: LinkMap = {};
+        const map: LinkMap = links.reduce((acc, value) => {
+            if (value.searchTerms) {
+                const key = value.searchTerms.join('||');
+                const list = acc[key] || [];
+                list.push(value);
+                acc[key] = list;
+                return acc;
+            } else {
+                // console.log(value);
+            }
+            return init;
+        }, init);
+        Object.keys(map).forEach(key => {
+            console.log(key, map[key].length);
+            const excludes = ['facebook.com', 'pinterest', 'linkedin.com'];
+            const links = map[key].filter(v => excludes.filter(e => v.link && v.link.indexOf(e) > -1).length === 0);
+            console.log(links.map(l => `${l.link}|${l.searchTerms.join(':')}|${l.terms.join(':')}`));
+        })
+    }
+}
+const search = async () => {
+    const bot = new HappyBot();
+    await bot.born();
+    await bot.walk();
+    bot.die();
+
+    // display();
+
 }
 
-async function getLinksFromDbBeforeScrap() {
-    // let links = loadFromFile<IGoogleLink[]>('google');
-    // if (links === null) {
 
-    const c = new CrawlerPromise();
-    c.start();
-
-
-    const linksPromeses = startups.map(s => getStartupLink(c, s));
-    const a = await Promise.all(linksPromeses);
-    return a;
-
-
-    // }
-    // return links;
-}
-
-const search = async (startups: IStartupInput[]) => {
-    //  startups.map(getStartupLink);
-    const links = await getLinksFromDbBeforeScrap();
-
-    saveInFile('google', links);
-    console.log(links);
-    // console.log(s1, s1.length);
-    // fs.writeFileSync('./files/google.json', JSON.stringify(links, undefined, 4), { encoding: 'utf-8' });
-}
-
-const startups = getStartups();
-search(startups);
+search();

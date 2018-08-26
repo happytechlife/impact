@@ -9,5 +9,6 @@ export const getStartups = () => {
         return { name: terms[0], searchTerms: terms.map(t => t.toLocaleLowerCase()) };
     })
     // console.log(startups);
-    return startups.slice(0, 2);
+    return startups;
+    // .slice(0, 2);
 }

@@ -69,9 +69,6 @@ export async function getTextFromUri(uri: string): Promise<string> {
 //     return '<KO>';
 // }
 
-
-
-
 export async function postToUrl(uri: string, body: string): Promise<string> {
     const response = await fetch(uri, {
         body,

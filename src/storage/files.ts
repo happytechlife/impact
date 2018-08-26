@@ -5,6 +5,11 @@ function getPath(name: string) {
     return `./db/${name}.json`
 }
 
+
+export const append = <T>(name: string, list: T[]) => {
+    const db = loadFromFile<T[]>(name) || [];
+    saveInFile(name, db.concat(list));
+}
 export const saveInFile = (name: string, content: any) => {
     fs.writeFileSync(getPath(name), JSON.stringify(content, undefined, 4), { encoding: 'utf-8' });
 }
